@@ -22,30 +22,34 @@ predictors <- pacientesPartNorm[, -match(c("Respiracao0nasal1bucal"), colnames(p
 # http://topepo.github.io/caret/train-models-by-tag.html#model-tree
 modelTree <- train(predictors, classes, method = "LMT", trControl = trainControl(method = "LOOCV"))
 modelTree
-Summary(modelTree)
 
 # Usa pacote caret com leave one out para o modelo Bayesian Generalized Linear Model - classificador linear
 # http://topepo.github.io/caret/train-models-by-tag.html#bayesian-model
 modelBayes <- train(predictors, classes, method = "bayesglm", trControl = trainControl(method = "LOOCV"))
 modelBayes
-Summary(modelBayes)
 
 # Usando KNN do pacote caret
-folds <- createFolds(classes, k = 5, list = FALSE)
+folds <- createFolds(classes, k = 10, list = FALSE)
 folds
+foldsPred <- createFolds(predictors$LordoseCervical, k = 10, list = FALSE)
+foldsPred
 # summarizing first training/test fold
+classes <- as.data.frame(classes)
+predictors <- as.data.frame(predictors)
 trainClasses <- classes[folds != 1,]
-trainPredictors <- predictors[folds != 1,]
+trainPredictors <- predictors[foldsPred != 1,]
 summary(trainClasses)
-testClasses <- classes[folds == 1,]
+summary(trainPredictors)
+estClasses <- classes[folds == 1,]
 testPredictors <- predictors[folds == 1,]
 summary(testClasses)
 
 knn1 = knn3(trainPredictors, trainClasses, k = 1)
-
+knn1
+predict(knn1, head(testPredictors), type = "prob")
 
 ##############################################################################
-# Daqui para baixo s??o os testes que fizemos na semana passada
+# Daqui para baixo s??o os testes
 ##############################################################################
 train_set <- createDataPartition(classes, p = 0.8, list = FALSE)
 str(train_set)
